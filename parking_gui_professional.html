@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Level Parking Management System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --emergency: #dc2626;
+            --vip: #a855f7;
+            --normal: #6b7280;
+
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+
+            --border: #e2e8f0;
+            --border-light: #cbd5e1;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            animation: slideInLeft 0.5s ease-out;
+            box-shadow: var(--shadow);
+        }
+
+        .logo-section {
+            padding: 32px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-section {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item-icon {
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 0.5s ease-out;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .time-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: var(--danger);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-light);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Action Cards */
+        .action-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-entry {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--primary);
+        }
+
+        .badge-exit {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Parking Visualization */
+        .parking-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .level-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .level-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .level-stats {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .parking-slot {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .parking-slot:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .parking-slot.available {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .parking-slot.available:hover {
+            border-color: var(--success);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .parking-slot.occupied {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .parking-slot.occupied:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .slot-number {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .slot-number.available {
+            color: var(--success);
+        }
+
+        .slot-number.occupied {
+            color: var(--danger);
+        }
+
+        .vehicle-info {
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .vehicle-type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .badge-4wheeler {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--primary);
+        }
+
+        .badge-2wheeler {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--secondary);
+        }
+
+        .slot-status {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Queue Section */
+        .queue-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .queue-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .queue-count {
+            padding: 6px 14px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .queue-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            border-color: var(--border-light);
+            transform: translateX(4px);
+        }
+
+        .queue-position {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .queue-details {
+            flex: 1;
+        }
+
+        .queue-vehicle {
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .queue-vehicle-type {
+            font-size: 18px;
+        }
+
+        .queue-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .priority-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-emergency {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--emergency);
+        }
+
+        .priority-vip {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--vip);
+        }
+
+        .priority-normal {
+            background: rgba(107, 114, 128, 0.15);
+            color: var(--normal);
+        }
+
+        /* Alert/Message */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .alert-icon {
+            font-size: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .action-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .parking-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <div class="logo">Parking Management System</div>
+                <div class="logo-subtitle">Multi-Level System</div>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Main Menu</div>
+                <div class="nav-item active">
+                    <span class="nav-item-icon">🏢</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-item-icon">🚗</span>
+                    <span>Vehicle Entry</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-item-icon">🚙</span>
+                    <span>Vehicle Exit</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Analytics</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Parking Management Dashboard</h1>
+                <div class="header-actions">
+                    <div class="time-display" id="currentTime">--:--:--</div>
+                    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Capacity</div>
+                        <div class="stat-value" id="totalCapacity">400</div>
+                        <div class="stat-change">
+                            <span>10 Levels • 40 Slots Each</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Available Slots</div>
+                        <div class="stat-value" id="availableCount">400</div>
+                        <div class="stat-change positive">
+                            <span>✓ All levels operational</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Occupied</div>
+                        <div class="stat-value" id="occupiedCount">0</div>
+                        <div class="stat-change">
+                            <span id="occupancyRate">0%</span> occupancy
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">In Queue</div>
+                        <div class="stat-value" id="queueCount">0</div>
+                        <div class="stat-change">
+                            <span id="priorityBreakdown">0 priority vehicles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-section">
+                    <!-- Entry Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Vehicle Entry</h2>
+                            <span class="card-badge badge-entry">New Entry</span>
+                        </div>
+                        <form id="entryForm">
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Number</label>
+                                <input type="text" class="form-input" id="entryVehicle" placeholder="KA01AB1234"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Type</label>
+                                <select class="form-select" id="vehicleType">
+                                    <option value="4wheeler">🚗 4-Wheeler (Car/SUV)</option>
+                                    <option value="2wheeler">🏍️ 2-Wheeler (Bike/Scooter)</option>
+                                </select>
+                                <div
+                                    style="margin-top: 8px; padding: 8px 12px; background: rgba(139, 92, 246, 0.1); border-left: 3px solid var(--secondary); border-radius: 4px; font-size: 12px; color: var(--text-secondary);">
+                                    ℹ️ <strong>Note:</strong> Level 1 is exclusively for 2-wheelers. 4-wheelers will be
+                                    assigned from Level 2 onwards.
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority Level</label>
+                                <select class="form-select" id="entryPriority">
+                                    <option value="1">🚨 Emergency</option>
+                                    <option value="2">⭐ VIP</option>
+                                    <option value="3" selected>👤 Normal</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <span>🚗</span>
+                                <span>Park Vehicle</span>
+                            </button>
+                            <div id="entryMessage"></div>
+                        </form>
+                    </div>
+
+                    <!-- Exit Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Vehicle Exit</h2>
+                            <span class="card-badge badge-exit">Checkout</span>
+                        </div>
+                        <form id="exitForm">
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Number</label>
+                                <input type="text" class="form-input" id="exitVehicle" placeholder="KA01AB1234"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary">
+                                <span>🚙</span>
+                                <span>Exit Vehicle</span>
+                            </button>
+                            <div id="exitMessage"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Parking Visualization -->
+                <div class="parking-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Parking Levels</h2>
+                    </div>
+                    <div id="parkingLevels"></div>
+                </div>
+
+                <!-- Queue -->
+                <div class="queue-section">
+                    <div class="queue-header">
+                        <h2 class="queue-title">Priority Queue</h2>
+                        <span class="queue-count" id="queueCountDisplay">0 Waiting</span>
+                    </div>
+                    <div class="queue-list" id="queueList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div>No vehicles in queue</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ========================================================================
+        // SESSION MANAGEMENT
+        // ========================================================================
+        // Check if user is logged in
+        if (sessionStorage.getItem('loggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('loggedIn');
+                sessionStorage.removeItem('userId');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Configuration
+        const SLOTS_PER_LEVEL = 40;  // 40 slots per level
+        const NUM_LEVELS = 10;        // 10 levels for 400 total capacity
+        const TOTAL_CAPACITY = SLOTS_PER_LEVEL * NUM_LEVELS;
+        const HASH_TABLE_SIZE = 101;  // Prime number for better distribution
+
+        // Vehicle Number Validation (Indian Format)
+        // Format: XX##XX#### or XX##X#### where:
+        // XX = State code (2 letters)
+        // ## = District code (2 digits)
+        // XX/X = Series code (1-2 letters)
+        // #### = Number (4 digits)
+        const INDIAN_STATES = [
+            'AN', 'AP', 'AR', 'AS', 'BR', 'CH', 'CG', 'DD', 'DL', 'DN', 'GA', 'GJ',
+            'HP', 'HR', 'JH', 'JK', 'KA', 'KL', 'LA', 'LD', 'MH', 'ML', 'MN', 'MP',
+            'MZ', 'NL', 'OD', 'PB', 'PY', 'RJ', 'SK', 'TN', 'TR', 'TS', 'UK', 'UP',
+            'WB'
+        ];
+
+        // Validate Indian vehicle registration number
+        function validateVehicleNumber(vehicleNumber) {
+            // Remove spaces and convert to uppercase
+            vehicleNumber = vehicleNumber.replace(/\s+/g, '').toUpperCase();
+
+            // Check length (should be between 9-10 characters)
+            if (vehicleNumber.length < 9 || vehicleNumber.length > 10) {
+                return { valid: false, message: 'Invalid format. Expected: XX##XX#### or XX##X####' };
+            }
+
+            // Extract state code (first 2 characters)
+            const stateCode = vehicleNumber.substring(0, 2);
+            if (!INDIAN_STATES.includes(stateCode)) {
+                return { valid: false, message: `Invalid state code: ${stateCode}. Must be valid Indian state code.` };
+            }
+
+            // Extract district code (next 2 characters)
+            const districtCode = vehicleNumber.substring(2, 4);
+            if (!/^\d{2}$/.test(districtCode)) {
+                return { valid: false, message: 'District code must be 2 digits (positions 3-4)' };
+            }
+
+            // Extract series code (1 or 2 letters)
+            const remainingPart = vehicleNumber.substring(4);
+
+            // Pattern 1: XX##XX#### (2 letters + 4 digits)
+            const pattern1 = /^[A-Z]{2}\d{4}$/;
+            // Pattern 2: XX##X#### (1 letter + 4 digits)
+            const pattern2 = /^[A-Z]\d{4}$/;
+
+            if (!pattern1.test(remainingPart) && !pattern2.test(remainingPart)) {
+                return { valid: false, message: 'Invalid format. After state and district, use XX#### or X####' };
+            }
+
+            return { valid: true, formatted: vehicleNumber };
+        }
+
+        // Data Structures
+        let levelStacks = [];
+        let priorityQueue = [];
+        let hashTable = Array(HASH_TABLE_SIZE).fill(null).map(() => []);
+        let trie = null;  // NEW: Trie for fast vehicle lookup
+
+        // ========================================================================
+        // TRIE DATA STRUCTURE (New DSA Concept)
+        // ========================================================================
+        // Trie for efficient prefix-based vehicle number search
+        class TrieNode {
+            constructor() {
+                this.children = {};
+                this.isEndOfWord = false;
+                this.vehicleData = null;
+            }
+        }
+
+        class Trie {
+            constructor() {
+                this.root = new TrieNode();
+            }
+
+            insert(vehicleNumber, data) {
+                let node = this.root;
+                for (let char of vehicleNumber) {
+                    if (!node.children[char]) {
+                        node.children[char] = new TrieNode();
+                    }
+                    node = node.children[char];
+                }
+                node.isEndOfWord = true;
+                node.vehicleData = data;
+            }
+
+            search(vehicleNumber) {
+                let node = this.root;
+                for (let char of vehicleNumber) {
+                    if (!node.children[char]) {
+                        return null;
+                    }
+                    node = node.children[char];
+                }
+                return node.isEndOfWord ? node.vehicleData : null;
+            }
+
+            delete(vehicleNumber) {
+                this._deleteHelper(this.root, vehicleNumber, 0);
+            }
+
+            _deleteHelper(node, vehicleNumber, index) {
+                if (index === vehicleNumber.length) {
+                    if (!node.isEndOfWord) return false;
+                    node.isEndOfWord = false;
+                    node.vehicleData = null;
+                    return Object.keys(node.children).length === 0;
+                }
+
+                const char = vehicleNumber[index];
+                if (!node.children[char]) return false;
+
+                const shouldDeleteChild = this._deleteHelper(node.children[char], vehicleNumber, index + 1);
+
+                if (shouldDeleteChild) {
+                    delete node.children[char];
+                    return Object.keys(node.children).length === 0 && !node.isEndOfWord;
+                }
+
+                return false;
+            }
+
+            // Get all vehicles with a prefix (useful for search)
+            searchByPrefix(prefix) {
+                let node = this.root;
+                for (let char of prefix) {
+                    if (!node.children[char]) return [];
+                    node = node.children[char];
+                }
+
+                const results = [];
+                this._collectAllWords(node, prefix, results);
+                return results;
+            }
+
+            _collectAllWords(node, prefix, results) {
+                if (node.isEndOfWord) {
+                    results.push({ vehicleNumber: prefix, data: node.vehicleData });
+                }
+                for (let char in node.children) {
+                    this._collectAllWords(node.children[char], prefix + char, results);
+                }
+            }
+        }
+
+        // Initialize
+        function init() {
+            // Initialize stacks for each level
+            for (let level = 0; level < NUM_LEVELS; level++) {
+                levelStacks[level] = [];
+                for (let slot = SLOTS_PER_LEVEL; slot >= 1; slot--) {
+                    levelStacks[level].push(slot);
+                }
+            }
+
+            // Initialize Trie
+            trie = new Trie();
+
+            updateUI();
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+        }
+
+        // Hash Functions
+        function hashFunction(vehicleNumber) {
+            let sum = 0;
+            for (let char of vehicleNumber) {
+                sum += char.charCodeAt(0);
+            }
+            return sum % HASH_TABLE_SIZE;
+        }
+
+        function insertRecord(vehicleNumber, level, slot, vehicleType) {
+            const index = hashFunction(vehicleNumber);
+            const record = { vehicleNumber, level, slot, vehicleType };
+            hashTable[index].push(record);
+
+            // Also insert into Trie for fast lookup
+            trie.insert(vehicleNumber, record);
+        }
+
+        function searchRecord(vehicleNumber) {
+            // Use Trie for O(k) lookup where k is length of vehicle number
+            return trie.search(vehicleNumber);
+        }
+
+        function deleteRecord(vehicleNumber) {
+            const index = hashFunction(vehicleNumber);
+            const recordIndex = hashTable[index].findIndex(r => r.vehicleNumber === vehicleNumber);
+            if (recordIndex !== -1) {
+                hashTable[index].splice(recordIndex, 1);
+                trie.delete(vehicleNumber);
+                return true;
+            }
+            return false;
+        }
+
+        // Priority Queue Functions
+        function enqueuePriority(vehicleNumber, priority, vehicleType) {
+            const newVehicle = { vehicleNumber, priority, vehicleType, timestamp: new Date() };
+
+            // Find insertion position
+            let inserted = false;
+            for (let i = 0; i < priorityQueue.length; i++) {
+                if (priority < priorityQueue[i].priority) {
+                    priorityQueue.splice(i, 0, newVehicle);
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted) {
+                priorityQueue.push(newVehicle);
+            }
+        }
+
+        function dequeuePriority() {
+            return priorityQueue.shift();
+        }
+
+        // Vehicle Entry
+        document.getElementById('entryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const vehicleNumber = document.getElementById('entryVehicle').value.trim().toUpperCase();
+            const priority = parseInt(document.getElementById('entryPriority').value);
+            const vehicleType = document.getElementById('vehicleType').value;
+            const messageDiv = document.getElementById('entryMessage');
+
+            if (!vehicleNumber) {
+                showMessage(messageDiv, 'Please enter a vehicle number', 'error');
+                return;
+            }
+
+            // Validate vehicle number format
+            const validation = validateVehicleNumber(vehicleNumber);
+            if (!validation.valid) {
+                showMessage(messageDiv, '❌ ' + validation.message, 'error');
+                return;
+            }
+
+            const formattedNumber = validation.formatted;
+
+            if (searchRecord(formattedNumber)) {
+                showMessage(messageDiv, `Vehicle ${formattedNumber} is already parked!`, 'error');
+                return;
+            }
+
+            const vehicleIcon = vehicleType === '2wheeler' ? '🏍️' : '🚗';
+            const vehicleTypeText = vehicleType === '2wheeler' ? '2-Wheeler' : '4-Wheeler';
+
+            // Try to allocate slot
+            let allocated = false;
+
+            // Level 1 (index 0) is exclusively for 2-wheelers
+            // 4-wheelers start from Level 2 (index 1) onwards
+            const startLevel = vehicleType === '2wheeler' ? 0 : 1;
+
+            for (let level = startLevel; level < NUM_LEVELS && !allocated; level++) {
+                if (levelStacks[level].length > 0) {
+                    const slot = levelStacks[level].pop();
+                    insertRecord(formattedNumber, level + 1, slot, vehicleType);
+                    showMessage(messageDiv, `✓ ${vehicleIcon} ${vehicleTypeText} ${formattedNumber} parked at Level ${level + 1}, Slot ${slot}`, 'success');
+                    allocated = true;
+                }
+            }
+
+            if (!allocated) {
+                enqueuePriority(formattedNumber, priority, vehicleType);
+                const priorityText = priority === 1 ? 'Emergency' : priority === 2 ? 'VIP' : 'Normal';
+                showMessage(messageDiv, `Parking full. ${vehicleIcon} ${vehicleTypeText} ${formattedNumber} added to queue (${priorityText})`, 'error');
+            }
+
+            document.getElementById('entryVehicle').value = '';
+            updateUI();
+        });
+
+        // Vehicle Exit
+        document.getElementById('exitForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const vehicleNumber = document.getElementById('exitVehicle').value.trim().toUpperCase();
+            const messageDiv = document.getElementById('exitMessage');
+
+            if (!vehicleNumber) {
+                showMessage(messageDiv, 'Please enter a vehicle number', 'error');
+                return;
+            }
+
+            // Validate vehicle number format
+            const validation = validateVehicleNumber(vehicleNumber);
+            if (!validation.valid) {
+                showMessage(messageDiv, '❌ ' + validation.message, 'error');
+                return;
+            }
+
+            const formattedNumber = validation.formatted;
+
+            const record = searchRecord(formattedNumber);
+            if (!record) {
+                showMessage(messageDiv, `❌ Vehicle ${formattedNumber} not found in parking lot!`, 'error');
+                return;
+            }
+
+            const vehicleIcon = record.vehicleType === '2wheeler' ? '🏍️' : '🚗';
+            const vehicleTypeText = record.vehicleType === '2wheeler' ? '2-Wheeler' : '4-Wheeler';
+
+            deleteRecord(formattedNumber);
+            let message = `✓ ${vehicleIcon} ${vehicleTypeText} ${formattedNumber} exited from Level ${record.level}, Slot ${record.slot}`;
+
+            if (priorityQueue.length > 0) {
+                const waiting = dequeuePriority();
+                const waitingIcon = waiting.vehicleType === '2wheeler' ? '🏍️' : '🚗';
+                insertRecord(waiting.vehicleNumber, record.level, record.slot, waiting.vehicleType);
+                message += `<br>${waitingIcon} ${waiting.vehicleNumber} allocated to freed slot`;
+            } else {
+                levelStacks[record.level - 1].push(record.slot);
+            }
+
+            showMessage(messageDiv, message, 'success');
+            document.getElementById('exitVehicle').value = '';
+            updateUI();
+        });
+
+        function showMessage(element, message, type) {
+            element.innerHTML = `<div class="alert alert-${type}">
+                <span class="alert-icon">${type === 'success' ? '✓' : '✕'}</span>
+                <span>${message}</span>
+            </div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 5000);
+        }
+
+        // Update UI
+        function updateUI() {
+            updateStats();
+            renderParkingLevels();
+            renderQueue();
+        }
+
+        function updateStats() {
+            let available = 0;
+            levelStacks.forEach(stack => available += stack.length);
+
+            const occupied = TOTAL_CAPACITY - available;
+            const occupancyRate = ((occupied / TOTAL_CAPACITY) * 100).toFixed(0);
+
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('occupiedCount').textContent = occupied;
+            document.getElementById('occupancyRate').textContent = occupancyRate + '%';
+            document.getElementById('queueCount').textContent = priorityQueue.length;
+
+            const emergencyCount = priorityQueue.filter(v => v.priority === 1).length;
+            const vipCount = priorityQueue.filter(v => v.priority === 2).length;
+            document.getElementById('priorityBreakdown').textContent =
+                emergencyCount > 0 ? `${emergencyCount} emergency` : `${vipCount} VIP`;
+        }
+
+        function renderParkingLevels() {
+            const container = document.getElementById('parkingLevels');
+            container.innerHTML = '';
+
+            for (let level = 0; level < NUM_LEVELS; level++) {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = 'level-container';
+
+                const availableInLevel = levelStacks[level].length;
+                const occupiedInLevel = SLOTS_PER_LEVEL - availableInLevel;
+
+                // Add special badge for Level 1 (2-wheelers only)
+                const levelBadge = level === 0 ?
+                    '<span style="margin-left: 12px; padding: 4px 10px; background: rgba(139, 92, 246, 0.15); color: var(--secondary); border-radius: 12px; font-size: 11px; font-weight: 600;">🏍️ 2-Wheelers Only</span>' :
+                    '';
+
+                levelDiv.innerHTML = `
+                    <div class="level-header">
+                        <div class="level-title">
+                            <span>🏢 Level ${level + 1}</span>${levelBadge}
+                        </div>
+                        <div class="level-stats">
+                            ${availableInLevel}/${SLOTS_PER_LEVEL} Available
+                        </div>
+                    </div>
+                    <div class="parking-grid" id="level${level}Grid"></div>
+                `;
+
+                container.appendChild(levelDiv);
+
+                // Render slots
+                const grid = document.getElementById(`level${level}Grid`);
+                for (let slot = 1; slot <= SLOTS_PER_LEVEL; slot++) {
+                    const slotDiv = document.createElement('div');
+
+                    let vehicle = null;
+                    let vehicleType = null;
+                    for (let bucket of hashTable) {
+                        for (let record of bucket) {
+                            if (record.level === level + 1 && record.slot === slot) {
+                                vehicle = record.vehicleNumber;
+                                vehicleType = record.vehicleType;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (vehicle) {
+                        const vehicleIcon = vehicleType === '2wheeler' ? '🏍️' : '🚗';
+                        const badgeClass = vehicleType === '2wheeler' ? 'badge-2wheeler' : 'badge-4wheeler';
+                        const vehicleTypeText = vehicleType === '2wheeler' ? '2W' : '4W';
+
+                        slotDiv.className = 'parking-slot occupied';
+                        slotDiv.innerHTML = `
+                            <div class="slot-number occupied">${slot}</div>
+                            <div class="slot-status">Occupied</div>
+                            <div class="vehicle-info">${vehicleIcon} ${vehicle}</div>
+                            <div class="vehicle-type-badge ${badgeClass}">${vehicleTypeText}</div>
+                        `;
+                    } else {
+                        slotDiv.className = 'parking-slot available';
+                        slotDiv.innerHTML = `
+                            <div class="slot-number available">${slot}</div>
+                            <div class="slot-status">Available</div>
+                        `;
+                    }
+
+                    grid.appendChild(slotDiv);
+                }
+            }
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('queueList');
+            document.getElementById('queueCountDisplay').textContent =
+                priorityQueue.length === 0 ? 'No Vehicles' : `${priorityQueue.length} Waiting`;
+
+            if (priorityQueue.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>No vehicles in queue</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = priorityQueue.map((vehicle, index) => {
+                const priorityClass = vehicle.priority === 1 ? 'priority-emergency' :
+                    vehicle.priority === 2 ? 'priority-vip' : 'priority-normal';
+                const priorityText = vehicle.priority === 1 ? 'Emergency' :
+                    vehicle.priority === 2 ? 'VIP' : 'Normal';
+                const vehicleIcon = vehicle.vehicleType === '2wheeler' ? '🏍️' : '🚗';
+
+                return `
+                    <div class="queue-item">
+                        <div class="queue-position">${index + 1}</div>
+                        <div class="queue-details">
+                            <div class="queue-vehicle">
+                                <span class="queue-vehicle-type">${vehicleIcon}</span>
+                                <span>${vehicle.vehicleNumber}</span>
+                            </div>
+                            <div class="queue-time">Waiting since ${vehicle.timestamp.toLocaleTimeString()}</div>
+                        </div>
+                        <div class="priority-badge ${priorityClass}">${priorityText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+
+</html>
